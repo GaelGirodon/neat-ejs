@@ -9,21 +9,11 @@
 import axios from "axios";
 import { execSync } from "node:child_process";
 import fs from "node:fs/promises";
-import { env } from "node:process";
+import { env, exit } from "node:process";
+import glob from "glob";
 import path from "path";
 import semver from "semver";
 import tar from "tar";
-
-/** Text to add to the top of the README.md */
-const about = `\
-> **Neat EJS** is a dependency-free distribution of EJS
-> with the same core library but without CLI, published
-> synchronously with the original EJS package.`;
-
-/** Text to add to the CLI chapter of the README.md */
-const aboutCLI = `\
-> ⚠️ The CLI was removed from **Neat EJS** to make it a dependency-free
-> package, install the full EJS package if you need to use the CLI.`;
 
 (async () => {
 
@@ -47,7 +37,27 @@ const aboutCLI = `\
   } else {
     versions.push(ejs.data["dist-tags"].latest);
   }
+
+  if (versions.length < 1) {
+    console.log("[info] Already up-to-date");
+    exit(0);
+  }
+
+  //
+  // Download, patch and publish each version
+  //
+
   console.log("[info] Versions to publish: %s", versions.join(", "));
+
+  // Load the text to add to the top of the README.md
+  const about = (await fs.readFile("README.md", { encoding: "utf8" }))
+    .match(/<!-- <about> -->(.+)<!-- <\/about> -->/s)[1].trim()
+    .replace(/^/mg, "> ").replace(/^> $/mg, ">");
+
+  // Text to add to the CLI chapter of the README.md
+  const aboutCLI =
+    "> ⚠️ The CLI was removed from **Neat EJS** to make it a dependency-free" +
+    "> package, install the full EJS package if you need to use the CLI.";
 
   await fs.mkdir("release", { recursive: true });
   for (const version of versions) {
@@ -81,6 +91,9 @@ const aboutCLI = `\
     const packageJsonPatch = await fs.readFile("patch/package.json", { encoding: "utf8" });
     const outPackageJson = Object.assign(JSON.parse(packageJson), JSON.parse(packageJsonPatch));
     for (const key of ["bin", "jsdelivr", "unpkg", "dependencies", "devDependencies", "scripts"]) {
+      if (!(key in outPackageJson)) {
+        throw new Error(`[error] Patch aborted, '${key}' key is missing from package.json`);
+      }
       delete outPackageJson[key];
     }
     await fs.writeFile(`${release}/package.json`,
@@ -93,9 +106,14 @@ const aboutCLI = `\
       .replace(/^(## )/m, `${about}\n\n$1`)
       .replace(/^(## CLI)/m, `$1\n\n${aboutCLI}`);
     if (!readme.includes(about) || !readme.includes(aboutCLI)) {
-      throw new Error("[error] README.md patch failed");
+      throw new Error("[error] Patch aborted, README.md content changed");
     }
     await fs.writeFile(`${release}/README.md`, readme, { encoding: "utf8" });
+
+    // Check the patched release
+    if ((await glob("**/*", { cwd: release })).length !== 8) {
+      throw new Error("[error] Patch aborted, expected 8 files in the release");
+    }
 
     //
     // Publish as Neat EJS
