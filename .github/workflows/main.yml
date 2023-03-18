@@ -1,0 +1,36 @@
+name: main
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.check.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: check
+        run: bash ./scripts/check.sh
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: check
+    if: ${{ needs.check.outputs.publish == '1' }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          cache: npm
+          registry-url: ${{ vars.NPM_REGISTRY_URL }} # https://registry.npmjs.org
+      - run: npm ci
+      - run: node ./scripts/publish.js
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_PUBLISH_DRY_RUN: ${{ vars.NPM_PUBLISH_DRY_RUN }}

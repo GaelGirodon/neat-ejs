@@ -1,0 +1,23 @@
+{
+  "name": "neat-ejs-publisher",
+  "version": "0.1.0",
+  "description": "Publishing tool for Neat EJS",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaelgirodon/neat-ejs.git"
+  },
+  "author": "Gael Girodon <contact@gaelgirodon.fr>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/gaelgirodon/neat-ejs/issues"
+  },
+  "homepage": "https://github.com/gaelgirodon/neat-ejs#readme",
+  "devDependencies": {
+    "axios": "^1.3.4",
+    "glob": "^9.3.0",
+    "semver": "^7.3.8",
+    "tar": "^6.1.13"
+  }
+}
