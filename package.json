@@ -17,6 +17,6 @@
   "devDependencies": {
     "fast-glob": "^3.3.2",
     "semver": "^7.6.0",
-    "tar": "^6.2.0"
+    "tar": "^6.2.1"
   }
 }

@@ -3,7 +3,7 @@
   "description": "Dependency-free distribution of EJS without CLI",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gaelgirodon/neat-ejs.git"
+    "url": "git+https://github.com/gaelgirodon/neat-ejs.git"
   },
   "author": "Gael Girodon <contact@gaelgirodon.fr>",
   "bugs": "https://github.com/gaelgirodon/neat-ejs/issues",
