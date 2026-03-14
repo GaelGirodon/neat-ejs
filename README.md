@@ -4,6 +4,9 @@
 [![license](https://img.shields.io/github/license/gaelgirodon/neat-ejs?style=flat-square)](./LICENSE)
 [![build](https://img.shields.io/github/actions/workflow/status/gaelgirodon/neat-ejs/main.yml?branch=main&style=flat-square)](https://github.com/gaelgirodon/neat-ejs/actions/workflows/main.yml)
 
+> [!NOTE]
+> EJS is dependency-free again since v5, so this project is no longer needed!
+
 <!-- <about> -->
 **Neat EJS** is a dependency-free distribution of EJS
 with the same core library but without CLI, published
